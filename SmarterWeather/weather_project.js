@@ -4,7 +4,9 @@ import {
   Text,
   View,
   TextInput,
-  AsyncStorage
+  AsyncStorage,
+  TouchableHighlight,
+  Image
 } from "react-native";
 import Button from "./Button";
 import * as Expo from "expo";
@@ -25,14 +27,43 @@ import OpenWeatherMap from "./open_weather_map";
 class WeatherProject extends Component {
   constructor(props) {
     super(props);
-    this.state = { forecast: null };
+    this.state = {
+      forecast: null,
+      currentTime:"",
+      fahrenheit : false
+    };
+
   }
 
-    
+componentWillReceiveProps(nextProps){
+  const fahrenheit = nextProps.navigation.getParam("fahrenheit", true)
+  this.setState({fahrenheit}, this._getCoords)
+}
+
+  _getcurrentTime = () => {
+    setInterval( () => {
+      const date = new Date()
+      let ampm = "AM"
+      let hours = date.getHours()
+      const minutes = date.getMinutes()
+      let seconds = date.getSeconds()
+      if(hours > 12){
+        hours = hours-12
+        ampm = "PM"
+      }
+      if(seconds < 10){
+        seconds = `0${seconds}`
+      }
+      const currentTime = `${hours}:${minutes}:${seconds} ${ampm}`
+      this.setState({currentTime})
+    },1000)
+  }
+
+
   checkMultiPermissions = async() => {
     const { Permissions, FileSystem } = Expo;
     console.log(FileSystem.documentDirectory);
-    let { status, expires, permissions } = await Permissions.getAsync(Permissions.CAMERA_ROLL)
+    const { status, expires, permissions } = await Permissions.getAsync(Permissions.CAMERA_ROLL)
     if (status !== 'granted') {
       console.log('Hey! You heve not enabled selected permissions');
       const { newStatus, expires, permissions } = await Permissions.askAsync(Permissions.CAMERA_ROLL)
@@ -63,8 +94,8 @@ class WeatherProject extends Component {
             }
           }
       }
-      
-  }      
+
+  }
   _retrieveData = async () => {
       console.log("Retrieving Data");
         try {
@@ -84,6 +115,8 @@ class WeatherProject extends Component {
       }
 
   componentDidMount() {
+    this._getcurrentTime()
+    this._getForecastForCoords()
     AsyncStorage
       .getItem(STORAGE_KEY)
       .then(value => {
@@ -109,11 +142,19 @@ class WeatherProject extends Component {
     });
   };
 
-  _getForecastForCoords = (lat, lon) => {
-    OpenWeatherMap.fetchLatLonForecast(lat, lon)
-      .then(forecast => {
-        this.setState({ forecast: forecast });
-    });
+  _getForecastForCoords = () => {
+    navigator.geolocation.getCurrentPosition(
+      initialPosition => {
+        OpenWeatherMap.fetchLatLonForecast(initialPosition.coords.latitude, initialPosition.coords.longitude, this.state.fahrenheit)
+          .then(forecast => {
+          this.setState({ forecast: forecast });
+        });
+      },
+      error => {
+        alert(error.message);
+      },
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+    );
   };
 
   _handleTextChange = event => {
@@ -130,14 +171,27 @@ class WeatherProject extends Component {
           <Forecast
             main={this.state.forecast.main}
             temp={this.state.forecast.temp}
+            fahrenheit={this.state.fahrenheit}
           />
         </View>
       );
+    }
+    else{
+      content = (
+        <View style={styles.row}>
+          <Text style={{color:"#FFFFFF", fontSize:30}}>Loading Weather...</Text>
+        </View>
+      )
     }
 
     return (
       <PhotoBackdrop image={this.state.newPostImage} >
         <View style={styles.overlay}>
+        <View>
+            <TouchableHighlight onPress={() => this.props.navigation.navigate('Settings')}>
+                <Image style={{marginTop: 40, marginRight: 20, width: 30, height: 30, alignSelf: 'flex-end'}} source={{uri: 'http://cdn.onlinewebfonts.com/svg/img_316942.png'}}/>
+            </TouchableHighlight>
+          </View>
           <View style={styles.row}>
             <Text style={textStyles.mainText}>
               Forecast for
@@ -153,8 +207,9 @@ class WeatherProject extends Component {
           </View>
 
           <View style={styles.row}>
-            <LocationButton onGetCoords={this._getForecastForCoords} />
+            <Text style={{color:"#FFFFFF", fontSize:30}}> {this.state.currentTime}</Text>
           </View>
+
           <View style={styles.row}>
             <Button onPress={this.checkMultiPermissions} label="Choose Image"></Button>
           </View>

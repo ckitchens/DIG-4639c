@@ -14,7 +14,7 @@ import Button from "./Button";
 class Settings extends Component {
     state = {
         timeInterval: "1",
-        isFerinheit: true
+        fahinheit: true
     }
 
     render() {
@@ -30,10 +30,10 @@ class Settings extends Component {
                 <View style={styles.row}>
                     <Text style={{marginRight: 10}}>Celsius</Text>
                     <Switch
-                        onValueChange={(isFerinheit) => {
-                            this.setState({ isFerinheit })
+                        onValueChange={(Fahinheit) => {
+                            this.setState({ Fahinheit })
                         }}
-                        value={this.state.isFerinheit}
+                        value={this.state.Fahinheit}
                     />
                      <Text  style={{marginLeft: 10}}>Fahrenheit</Text>
                 </View>

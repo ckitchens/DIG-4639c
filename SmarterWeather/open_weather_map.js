@@ -6,7 +6,7 @@ function zipUrl(zip) {
 }
 
 function latLonUrl(lat, lon, fahrenheit) {
-  return `${API_STEM}lat=${lat}&lon=${lon}&units=${fahrenheit ? 'imperial': 'metric'}&APPID=${WEATHER_API_KEY}`;
+  return `${API_STEM}lat=${lat}&lon=${lon}&units=${fahrenheit?"imperial":"metric"}&APPID=${WEATHER_API_KEY}`;
 }
 
 function fetchForecast(url) {

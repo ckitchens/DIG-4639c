@@ -1,27 +1,14 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import WeatherProject from './weather_project.1';
+import WeatherProject from './weather_project';
 import Settings from './Settings'
-
-import {createStackNavigator, createAppContainer} from 'react-navigation';
-
-const MainNavigator = createStackNavigator({
-  Home: {screen: WeatherProject},
-  Settings: {screen: Settings},
-}, {initialRouteName:"Home"});
-
-const App = createAppContainer(MainNavigator);
-
-export default App;
-
-
-// export default class App extends React.Component {
-//   render() {
-//     return (
-//       <WeatherProject />
-//     );
-//   }
-// }
+import {createStackNavigator , createAppContainer} from "react-navigation"
+const mainNavigator = createStackNavigator({
+  Home:{screen: WeatherProject},
+  Settings: {screen: Settings}
+} , {initialRouteName:"Home"})
+const App = createAppContainer(mainNavigator)
+export default App
 
 const styles = StyleSheet.create({
   container: {
