@@ -8,16 +8,33 @@ import {
   FlatList,
   TouchableOpacity,
   View,
-  AsyncStorage
+  AsyncStorage,
+  Button
 } from 'react-native';
 import { WebBrowser } from 'expo';
 
 import { MonoText } from '../components/StyledText';
 
+import CountDownTimer from '../components/CountDownTimer'
+
+const Notification = ({workout, close})=> workout?(
+  <View style= {styles.notification}>
+    <Text> Your {workout} is done</Text>
+    <Button onPress= {close} title = "close"/>
+  </View>
+  ): null
+
 export default class FavoriteScreen extends React.Component {
   state = {
-    favorites:[]
+    favorites:[],
+    interval: null,
+    workout: null,
   }
+
+  setWorkout = (workout) => {
+    this.setState({workout})
+  }
+
   componentDidMount(){
     this.getFavorites()
   }
@@ -38,16 +55,19 @@ export default class FavoriteScreen extends React.Component {
     const {navigate} = this.props.navigation;
     return (
       <View style={styles.container}>
+      <Notification workout = {this.state.workout} close= {()=> this.setWorkout(null)}/>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
           <View style={styles.getStartedContainer}>
-            <Text style={styles.getStartedText}>Workout with us</Text>
+            <Text style={styles.getStartedText}>Start Working Out You Lazy Person</Text>
             <FlatList
              data={this.state.favorites}
              keyExtractor={this._keyExtractor}
-              renderItem={({item}) => <TouchableOpacity onPress={(event) => { this._gotoScreen(item)}}>
+              renderItem={({item}) => <TouchableOpacity onPress={(event) => {this._gotoScreen(item)}}>
                 <Image source={item.image} style={{width:200,height:200}} />
+                <CountDownTimer done = {()=> this.setWorkout(item.key)} />
               </TouchableOpacity>}
             />
+            <Text style={styles.getLazyText}>Or dont its cool</Text>
           </View>
         </ScrollView>
       </View>
@@ -60,6 +80,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  notification:{
+  borderRadius: 4,
+   borderWidth: 0.5,
+   borderColor: '#d6d7da',
+   textAlign: 'center',
+   position: 'absolute',
+   top : 50,
+   left: '10%',
+   zIndex: 1,
+   width: '80%',
+   backgroundColor: 'white',
+   padding: 20,
   },
   developmentModeText: {
     marginBottom: 20,
@@ -99,9 +132,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   getStartedText: {
-    fontSize: 17,
+    fontSize: 25,
     color: 'rgba(96,100,109, 1)',
     lineHeight: 24,
+    marginTop:50,
+    textAlign: 'center',
+  },
+  getLazyText:{
+    fontSize: 10,
+    color: 'rgba(96,100,109, 1)',
+    lineHeight: 24,
+    marginTop:75,
     textAlign: 'center',
   },
   tabBarInfoContainer: {

@@ -35,7 +35,6 @@ export default class HomeScreen extends React.Component {
   handlefavoriteClick = async (item) => {
     let favoriteList = await AsyncStorage.getItem("favoriteList")
     favoriteList = JSON.parse(favoriteList)
-    favoriteList = []
     if(!favoriteList || !Array.isArray(favoriteList)){
 
       favoriteList = []
@@ -51,6 +50,7 @@ export default class HomeScreen extends React.Component {
     const {navigate} = this.props.navigation;
     return (
       <View style={styles.container}>
+      <Text style={styles.getStartedText}>Workout with us</Text>
         <Button
           title = "Favorites"
           onPress = {
@@ -59,7 +59,7 @@ export default class HomeScreen extends React.Component {
         />
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
           <View style={styles.getStartedContainer}>
-            <Text style={styles.getStartedText}>Workout with us</Text>
+
             <FlatList
              data={workouts}
              keyExtractor={this._keyExtractor}
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   getStartedText: {
-    fontSize: 17,
+    fontSize: 25,
     color: 'rgba(96,100,109, 1)',
     lineHeight: 24,
     textAlign: 'center',
